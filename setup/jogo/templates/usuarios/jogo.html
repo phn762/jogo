@@ -16,11 +16,26 @@
             font-size: 24px;
             margin-top: 10px;
         }
+        .game-over {
+            text-align: center;
+            font-size: 36px;
+            color: white;
+            display: none;
+        }
+        .restart-btn {
+            display: none;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="1200" height="800"></canvas>
     <div class="score" id="score">Pontos: 0</div>
+    <div class="game-over" id="gameOver">Game Over</div>
+    <button class="restart-btn" id="restartBtn" onclick="reiniciarJogo()">Jogar Novamente</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -44,12 +59,12 @@
         }
 
         function desenharComida() {
-            ctx.fillStyle = 'green';
+            ctx.fillStyle = 'red';
             ctx.fillRect(comidaX, comidaY, tamanhoQuadrado, tamanhoQuadrado);
         }
 
         function desenharCobra() {
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = 'green';
             pixels.forEach(pixel => {
                 ctx.fillRect(pixel[0], pixel[1], tamanhoQuadrado, tamanhoQuadrado);
             });
@@ -62,20 +77,28 @@
         function selecionarVelocidade(tecla) {
             switch (tecla) {
                 case 'ArrowDown':
-                    velocidadeX = 0;
-                    velocidadeY = tamanhoQuadrado;
+                    if (velocidadeY === 0) {
+                        velocidadeX = 0;
+                        velocidadeY = tamanhoQuadrado;
+                    }
                     break;
                 case 'ArrowUp':
-                    velocidadeX = 0;
-                    velocidadeY = -tamanhoQuadrado;
+                    if (velocidadeY === 0) {
+                        velocidadeX = 0;
+                        velocidadeY = -tamanhoQuadrado;
+                    }
                     break;
                 case 'ArrowRight':
-                    velocidadeX = tamanhoQuadrado;
-                    velocidadeY = 0;
+                    if (velocidadeX === 0) {
+                        velocidadeX = tamanhoQuadrado;
+                        velocidadeY = 0;
+                    }
                     break;
                 case 'ArrowLeft':
-                    velocidadeX = -tamanhoQuadrado;
-                    velocidadeY = 0;
+                    if (velocidadeX === 0) {
+                        velocidadeX = -tamanhoQuadrado;
+                        velocidadeY = 0;
+                    }
                     break;
             }
         }
@@ -88,6 +111,7 @@
 
             if (x < 0 || x >= largura || y < 0 || y >= altura) {
                 fimJogo = true;
+                exibirGameOver();
                 return;
             }
 
@@ -99,6 +123,7 @@
             for (let i = 0; i < pixels.length - 1; i++) {
                 if (pixels[i][0] === x && pixels[i][1] === y) {
                     fimJogo = true;
+                    exibirGameOver();
                     return;
                 }
             }
@@ -112,6 +137,26 @@
             ctx.clearRect(0, 0, largura, altura);
             desenharComida();
             desenharCobra();
+            desenharPontuacao();
+        }
+
+        function exibirGameOver() {
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('restartBtn').style.display = 'block';
+        }
+
+        function reiniciarJogo() {
+            x = largura / 2;
+            y = altura / 2;
+            velocidadeX = 0;
+            velocidadeY = 0;
+            tamanhoCobra = 1;
+            pixels = [];
+            fimJogo = false;
+            pontuacao = 0;
+            gerarComida();
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('restartBtn').style.display = 'none';
             desenharPontuacao();
         }
 
